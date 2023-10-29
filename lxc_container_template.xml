@@ -4,7 +4,7 @@
   <Distribution>ubuntu</Distribution>
   <Release>jammy</Release>
   <Architecture>amd64</Architecture>
-  <Repository>https://github.com/joly0/unraid_lxc_amp</Repository>
+  <Repository>https://github.com/Joly0/unraid_lxc_amp</Repository>
   <Description>Game Servers</Description>
   <Autostart>true</Autostart>
   <Beta>True</Beta>
