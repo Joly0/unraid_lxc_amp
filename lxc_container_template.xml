@@ -4,7 +4,7 @@
   <Distribution>debian</Distribution>
   <Release>bookworm</Release>
   <Architecture>amd64</Architecture>
-  <Repository>https://github.com/ich777/unraid_lxc_amp</Repository>
+  <Repository>https://github.com/joly0/unraid_lxc_amp</Repository>
   <Description>Game Servers</Description>
   <Autostart>true</Autostart>
   <Beta>True</Beta>
