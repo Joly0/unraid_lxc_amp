@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LXC version="0.1">
   <Name>AMP</Name>
-  <Distribution>debian</Distribution>
-  <Release>bookworm</Release>
+  <Distribution>ubuntu</Distribution>
+  <Release>jammy</Release>
   <Architecture>amd64</Architecture>
   <Repository>https://github.com/joly0/unraid_lxc_amp</Repository>
   <Description>Game Servers</Description>
