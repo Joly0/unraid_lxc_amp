@@ -1,2 +1,2 @@
 #!/bin/bash
-ampinstmgr upgradeall
+getamp update
