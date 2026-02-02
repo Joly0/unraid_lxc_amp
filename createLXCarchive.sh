@@ -14,6 +14,12 @@ LXC_RELEASE=trixie
 LXC_ARCH=amd64
 LXC_BUILD_ROOT=$(cd "$(dirname "$0")" && pwd)
 
+echo "==========DEBUG=========="
+echo "LXC Path is: " $LXC_PATH
+echo "LXC Package Dir is: " $LXC_PACKAGE_DIR
+echo "Build Root is: " $LXC_BUILD_ROOT
+echo "========================="
+
 # check if build machine uses /mnt/user
 if echo ${LXC_PATH} | grep -q "/mnt/user" ; then
   echo "ERROR: LXC path /mnt/user is not allowed!"
@@ -50,14 +56,18 @@ sleep 10
 
 # create /tmp directory in container if it not exists and copy build scripts
 echo "Copying build directory to container"
-cp -R ${LXC_BUILD_ROOT}/build ${LXC_PATH}/${LXC_CONT_NAME}/rootfs/tmp/build
+lxc-attach -n ${LXC_CONT_NAME} -- bash -c "mkdir -p /root/build && mkdir -p /root/build-log"
+cp -R ${LXC_BUILD_ROOT}/build/* ${LXC_PATH}/${LXC_CONT_NAME}/rootfs/root/build/
+lxc-attach -n ${LXC_CONT_NAME} -- bash -c "mkdir -p -v /tmp/build && cp -R -v /root/build/* /tmp/build/"
+rm -r ${LXC_PATH}/${LXC_CONT_NAME}/rootfs/root/build
+
 
 # loop through build scripts
 echo "Executing build scripts in container"
 IFS=$'\n'
 for script in ${LXC_BUILD_FILES}; do
   echo "Executing build script $script in container"
-  lxc-attach -n ${LXC_CONT_NAME} -- bash -c "chmod +x /tmp/build/$script && /tmp/build/$script 2>&1 | tee /tmp/${script%.*}.log"
+  lxc-attach -n ${LXC_CONT_NAME} -- bash -c "chmod +x /tmp/build/$script && /tmp/build/$script 2>&1 | tee /root/build-log/${script%.*}.log"
 done
 
 # stop LXC container
@@ -67,7 +77,7 @@ lxc-stop -n ${LXC_CONT_NAME} -t 15 2>/dev/null
 # copy over build log files
 echo "Copying over build logs from container"
 for script in ${LXC_BUILD_FILES}; do
-  cp ${LXC_PATH}/${LXC_CONT_NAME}/rootfs/tmp/${script%.*}.log ${LXC_PACKAGE_DIR}/${LXC_PACKAGE_NAME}_${script%.*}.log
+  cp ${LXC_PATH}/${LXC_CONT_NAME}/rootfs/root/build-log/${script%.*}.log ${LXC_PACKAGE_DIR}/${LXC_PACKAGE_NAME}_${script%.*}.log
 done
 
 # navigate to LXC container path, remove .bash_histroy, remove parts from
@@ -77,6 +87,7 @@ echo "Performing final cleanup from container"
 cd ${LXC_PATH}/${LXC_CONT_NAME}
 find . -name ".bash_history" -exec rm {} \;
 rm -rf ${LXC_PATH}/${LXC_CONT_NAME}/rootfs/tmp/*
+rm -rf ${LXC_PATH}/${LXC_CONT_NAME}/rootfs/root/build-log
 sed -i '/# Container specific configuration/,$d' config
 
 # combine and copy build log to package directory
